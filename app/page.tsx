@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { videos } from "@/data";
 import Navbar from "@/ui/navbar";
@@ -10,9 +10,60 @@ import VideoCard from "@/components/video-card";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [currentVideo, setCurrentVideo] = useState(videos[0]);
+  const [currentTime, setCurrentTime] = useState("00:00");
+  const [videoDuration, setVideoDuration] = useState("00:00");
+
+  const handleFormatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    const formattedSeconds = String(seconds).padStart(2, "0");
+
+    return `${formattedMinutes}:${formattedSeconds}`;
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleLoadedMetadata = () => {
+      const duration = video.duration;
+
+      setVideoDuration(handleFormatTime(duration));
+    };
+
+    video.addEventListener("loadedmetadata", handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+    };
+  }, [currentVideo]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const progressBar = progressBarRef.current;
+
+    if (!video || !progressBar) return;
+
+    const handleTimeUpdate = () => {
+      const current = video.currentTime;
+
+      setCurrentTime(handleFormatTime(current));
+      const progressPercent = (current / video.duration) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+    };
+
+    video.addEventListener("timeupdate", handleTimeUpdate);
+
+    return () => {
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+    };
+  }, [currentVideo]);
 
   return (
     <>
@@ -29,8 +80,25 @@ export default function Home() {
               <source src={currentVideo.src} type="video/mp4" />
             </video>
 
-            <div className="flex justify-between items-center lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 w-full absolute z-50 bottom-0 h-12 p-4">
-              <div className="flex items-center gap-4">
+            {/* CONTROLES */}
+            <div className="flex flex-col gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 w-full absolute z-50 bottom-0 h-fit ">
+              {/* tempo do vídeo */}
+              <div>
+                <div className="flex justify-between px-1 text-sm">
+                  <p>{currentTime}</p>
+
+                  <p>{videoDuration}</p>
+                </div>
+
+                {/* barra de progresso */}
+                <div className="relative">
+                  <div className="h-1 bg-gray-400 w-full"></div>
+                  <div ref={progressBarRef} className="h-1 w-0 bg-red-500 absolute top-0"></div>
+                </div>
+              </div>
+
+              {/* botões */}
+              <div className="flex items-center gap-4 pb-2 px-4">
                 <PlayBttn
                   isPlaying={isPlaying}
                   videoRef={videoRef}
@@ -64,6 +132,7 @@ export default function Home() {
                     onClick={() => {
                       setCurrentVideo(video);
                       setIsPlaying(false);
+                      setCurrentTime("00:00");
                     }}
                   >
                     <VideoCard video={video} />
