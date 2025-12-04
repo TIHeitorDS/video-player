@@ -9,6 +9,8 @@ import PlayBttn from "@/components/play-bttn";
 import VideoCard from "@/components/video-card";
 import ForwardBttn from "@/components/forward-bttn";
 import RewindBttn from "@/components/rewind-bttn";
+import NextBttn from "@/components/next-bttn";
+import BackBttn from "@/components/back-bttn";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -41,6 +43,27 @@ export default function Home() {
     const newTime = (clickX / rect.width) * video.duration;
 
     video.currentTime = newTime;
+  };
+
+  const handleBackVideo = () => {
+    const currentIndex = videos.findIndex(
+      (video) => video.id === currentVideo.id
+    );
+    const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
+    setCurrentVideo(videos[prevIndex]);
+    setIsPlaying(false);
+    setCurrentTime("00:00");
+  };
+
+  // Função para próximo vídeo ao clicar no botão Next
+  const handleNextVideo = () => {
+    const currentIndex = videos.findIndex(
+      (video) => video.id === currentVideo.id
+    );
+    const nextIndex = (currentIndex + 1) % videos.length;
+    setCurrentVideo(videos[nextIndex]);
+    setIsPlaying(false);
+    setCurrentTime("00:00");
   };
 
   useEffect(() => {
@@ -79,6 +102,33 @@ export default function Home() {
     return () => {
       video.removeEventListener("timeupdate", handleTimeUpdate);
     };
+  }, [currentVideo]);
+
+  // quando o vídeo acaba, troca para o próximo
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleEnded = () => {
+      handleNextVideo();
+    };
+
+    video.addEventListener("ended", handleEnded);
+    return () => video.removeEventListener("ended", handleEnded);
+  }, [handleNextVideo]);
+
+  // quando o vídeo muda, toca automaticamente
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const autoPlay = () => {
+      video.play().catch(() => {});
+      setIsPlaying(true);
+    };
+
+    video.addEventListener("loadeddata", autoPlay);
+    return () => video.removeEventListener("loadeddata", autoPlay);
   }, [currentVideo]);
 
   return (
@@ -139,6 +189,10 @@ export default function Home() {
                   <RewindBttn videoRef={videoRef} />
 
                   <ForwardBttn videoRef={videoRef} />
+
+                  <BackBttn handleBackVideo={handleBackVideo} />
+
+                  <NextBttn handleNextVideo={handleNextVideo} />
                 </div>
               </div>
             </div>
