@@ -27,6 +27,20 @@ export default function Home() {
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 
+  // Função para alterar a posição do vídeo quando o usuário clica na barra de progresso
+  const handleProgressBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const video = videoRef.current;
+    const progressBar = progressBarRef.current;
+
+    if (!video || !progressBar) return;
+
+    const rect = progressBar.parentElement!.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const newTime = (clickX / rect.width) * video.duration;
+
+    video.currentTime = newTime;
+  }
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -91,7 +105,7 @@ export default function Home() {
                 </div>
 
                 {/* barra de progresso */}
-                <div className="relative">
+                <div className="relative cursor-pointer" onClick={handleProgressBarClick}>
                   <div className="h-1 bg-gray-400 w-full"></div>
                   <div ref={progressBarRef} className="h-1 w-0 bg-red-500 absolute top-0"></div>
                 </div>
