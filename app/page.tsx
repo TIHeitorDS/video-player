@@ -14,6 +14,7 @@ import BackBttn from "@/components/back-bttn";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const controlsRef = useRef<HTMLDivElement | null>(null);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
@@ -64,6 +65,20 @@ export default function Home() {
     setCurrentVideo(videos[nextIndex]);
     setIsPlaying(false);
     setCurrentTime("00:00");
+  };
+
+  const showControls = () => {
+    // só funciona em telas menores que lg
+    if (window.innerWidth >= 1024) return;
+
+    if (!controlsRef.current) return;
+
+    if (controlsRef.current.style.opacity === "1") {
+      controlsRef.current.style.opacity = "0";
+      return;
+    }
+
+    controlsRef.current.style.opacity = "1";
   };
 
   useEffect(() => {
@@ -137,7 +152,10 @@ export default function Home() {
 
       <div className="flex items-start pt-4 flex-wrap px-4 gap-5">
         <main>
-          <div className="relative lg:w-2xl max-h-96 flex items-center group rounded-lg bg-black overflow-hidden">
+          <div
+            className="relative lg:w-2xl max-h-96 flex items-center group rounded-lg bg-black overflow-hidden"
+            onClick={showControls}
+          >
             <video
               key={currentVideo.id}
               ref={videoRef}
@@ -147,7 +165,10 @@ export default function Home() {
             </video>
 
             {/* CONTROLES */}
-            <div className="flex flex-col gap-2 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 w-full absolute z-50 bottom-0 h-fit ">
+            <div
+              ref={controlsRef}
+              className="flex flex-col gap-2 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 w-full absolute z-50 bottom-0 h-fit"
+            >
               {/* tempo do vídeo */}
               <div>
                 <div className="flex justify-between px-1 text-sm">
@@ -171,7 +192,7 @@ export default function Home() {
 
               {/* botões */}
               <div className="flex justify-between items-center">
-                <div className="flex items-center gap-4 pb-2 px-4">
+                <div className="flex items-center gap-4 pb-2 mx-auto lg:mx-0 lg:px-4">
                   <PlayBttn
                     isPlaying={isPlaying}
                     videoRef={videoRef}

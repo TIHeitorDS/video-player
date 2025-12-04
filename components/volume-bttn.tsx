@@ -38,7 +38,7 @@ export default function VolumeBttn({
         max="1"
         value={volume}
         step="0.01"
-        className="opacity-0 pointer-events-none group-hover/controls:opacity-100 group-hover/controls:pointer-events-auto transition-opacity duration-200 w-24"
+        className="lg:opacity-0 lg:pointer-events-none lg:group-hover/controls:opacity-100 lg:group-hover/controls:pointer-events-auto transition-opacity lg:duration-200 w-12 lg:w-24"
         onChange={handleVolumeChange}
       />
     </div>
