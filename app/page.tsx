@@ -7,6 +7,8 @@ import Navbar from "@/ui/navbar";
 import VolumeBttn from "@/components/volume-bttn";
 import PlayBttn from "@/components/play-bttn";
 import VideoCard from "@/components/video-card";
+import ForwardBttn from "@/components/forward-bttn";
+import RewindBttn from "@/components/rewind-bttn";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -39,7 +41,7 @@ export default function Home() {
     const newTime = (clickX / rect.width) * video.duration;
 
     video.currentTime = newTime;
-  }
+  };
 
   useEffect(() => {
     const video = videoRef.current;
@@ -105,25 +107,39 @@ export default function Home() {
                 </div>
 
                 {/* barra de progresso */}
-                <div className="relative cursor-pointer" onClick={handleProgressBarClick}>
+                <div
+                  className="relative cursor-pointer"
+                  onClick={handleProgressBarClick}
+                >
                   <div className="h-1 bg-gray-400 w-full"></div>
-                  <div ref={progressBarRef} className="h-1 w-0 bg-red-500 absolute top-0"></div>
+                  <div
+                    ref={progressBarRef}
+                    className="h-1 w-0 bg-red-500 absolute top-0"
+                  ></div>
                 </div>
               </div>
 
               {/* botões */}
-              <div className="flex items-center gap-4 pb-2 px-4">
-                <PlayBttn
-                  isPlaying={isPlaying}
-                  videoRef={videoRef}
-                  setIsPlaying={setIsPlaying}
-                />
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-4 pb-2 px-4">
+                  <PlayBttn
+                    isPlaying={isPlaying}
+                    videoRef={videoRef}
+                    setIsPlaying={setIsPlaying}
+                  />
 
-                <VolumeBttn
-                  videoRef={videoRef}
-                  volume={volume}
-                  setVolume={setVolume}
-                />
+                  <VolumeBttn
+                    videoRef={videoRef}
+                    volume={volume}
+                    setVolume={setVolume}
+                  />
+                </div>
+
+                <div className="flex justify-end pb-2 px-4 gap-3">
+                  <RewindBttn videoRef={videoRef} />
+
+                  <ForwardBttn videoRef={videoRef} />
+                </div>
               </div>
             </div>
           </div>
